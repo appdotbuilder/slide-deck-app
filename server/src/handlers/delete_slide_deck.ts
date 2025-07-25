@@ -1,9 +1,19 @@
 
+import { db } from '../db';
+import { slideDecksTable } from '../db/schema';
 import { type DeleteSlideDeckInput } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const deleteSlideDeck = async (input: DeleteSlideDeckInput): Promise<{ success: boolean }> => {
-    // This is a placeholder declaration! Real code should be implemented here.  
-    // The goal of this handler is deleting a slide deck and all its associated slides from the database.
-    // Should use CASCADE delete to automatically remove all slides belonging to the deck.
+  try {
+    // Delete the slide deck - CASCADE will automatically delete associated slides
+    const result = await db.delete(slideDecksTable)
+      .where(eq(slideDecksTable.id, input.id))
+      .execute();
+
     return { success: true };
+  } catch (error) {
+    console.error('Slide deck deletion failed:', error);
+    throw error;
+  }
 };

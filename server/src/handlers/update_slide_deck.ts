@@ -1,14 +1,29 @@
 
+import { db } from '../db';
+import { slideDecksTable } from '../db/schema';
 import { type UpdateSlideDeckInput, type SlideDeck } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const updateSlideDeck = async (input: UpdateSlideDeckInput): Promise<SlideDeck> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is updating an existing slide deck in the database.
-    // Should update the updated_at timestamp automatically.
-    return {
-        id: input.id,
+  try {
+    // Update slide deck record
+    const result = await db.update(slideDecksTable)
+      .set({
         name: input.name,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as SlideDeck;
+        updated_at: new Date() // Explicitly update the timestamp
+      })
+      .where(eq(slideDecksTable.id, input.id))
+      .returning()
+      .execute();
+
+    // Check if deck was found and updated
+    if (result.length === 0) {
+      throw new Error(`Slide deck with id ${input.id} not found`);
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Slide deck update failed:', error);
+    throw error;
+  }
 };

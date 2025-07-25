@@ -1,9 +1,20 @@
 
+import { db } from '../db';
+import { slidesTable } from '../db/schema';
 import { type GetSlidesInput, type Slide } from '../schema';
+import { eq, asc } from 'drizzle-orm';
 
 export const getSlides = async (input: GetSlidesInput): Promise<Slide[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all slides for a specific deck from the database.
-    // Should return slides ordered by slide_order ascending.
-    return [];
+  try {
+    const results = await db.select()
+      .from(slidesTable)
+      .where(eq(slidesTable.deck_id, input.deck_id))
+      .orderBy(asc(slidesTable.slide_order))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to get slides:', error);
+    throw error;
+  }
 };

@@ -1,14 +1,23 @@
 
+import { db } from '../db';
+import { slideDecksTable } from '../db/schema';
 import { type GetSlideDeckInput, type SlideDeck } from '../schema';
+import { eq } from 'drizzle-orm';
 
 export const getSlideDeck = async (input: GetSlideDeckInput): Promise<SlideDeck | null> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching a single slide deck by ID from the database.
-    // Should return null if deck is not found.
-    return {
-        id: input.id,
-        name: "Sample Deck",
-        created_at: new Date(),
-        updated_at: new Date()
-    } as SlideDeck;
+  try {
+    const result = await db.select()
+      .from(slideDecksTable)
+      .where(eq(slideDecksTable.id, input.id))
+      .execute();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Failed to fetch slide deck:', error);
+    throw error;
+  }
 };
